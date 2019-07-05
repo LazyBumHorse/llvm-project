@@ -36,14 +36,14 @@ static const SanitizerMask RequiresPIE =
     SanitizerKind::DataFlow | SanitizerKind::HWAddress | SanitizerKind::Scudo;
 static const SanitizerMask NeedsUnwindTables =
     SanitizerKind::Address | SanitizerKind::HWAddress | SanitizerKind::Thread |
-    SanitizerKind::Memory | SanitizerKind::DataFlow;
+    SanitizerKind::Memory | SanitizerKind::DataFlow | SanitizerKind::Type;
 static const SanitizerMask SupportsCoverage =
     SanitizerKind::Address | SanitizerKind::HWAddress |
     SanitizerKind::KernelAddress | SanitizerKind::KernelHWAddress |
     SanitizerKind::Memory | SanitizerKind::KernelMemory | SanitizerKind::Leak |
     SanitizerKind::Undefined | SanitizerKind::Integer |
     SanitizerKind::ImplicitConversion | SanitizerKind::Nullability |
-    SanitizerKind::DataFlow | SanitizerKind::Fuzzer |
+    SanitizerKind::DataFlow | SanitizerKind::Type | SanitizerKind::Fuzzer |
     SanitizerKind::FuzzerNoLink;
 static const SanitizerMask RecoverableByDefault =
     SanitizerKind::Undefined | SanitizerKind::Integer |
@@ -124,7 +124,8 @@ static void addDefaultBlacklists(const Driver &D, SanitizerMask Kinds,
                     {"msan_blacklist.txt", SanitizerKind::Memory},
                     {"tsan_blacklist.txt", SanitizerKind::Thread},
                     {"dfsan_abilist.txt", SanitizerKind::DataFlow},
-                    {"cfi_blacklist.txt", SanitizerKind::CFI},
+                    {"dfsan_abilist.txt", SanitizerKind::DataFlow},
+                    {"tysan_blacklist.txt", SanitizerKind::Type},
                     {"ubsan_blacklist.txt", SanitizerKind::Undefined |
                                                 SanitizerKind::Integer |
                                                 SanitizerKind::Nullability}};
@@ -418,7 +419,11 @@ SanitizerArgs::SanitizerArgs(const ToolChain &TC,
                      SanitizerKind::Address | SanitizerKind::HWAddress |
                          SanitizerKind::Leak | SanitizerKind::Thread |
                          SanitizerKind::Memory | SanitizerKind::KernelAddress |
-                         SanitizerKind::Scudo | SanitizerKind::SafeStack)};
+                         SanitizerKind::Scudo | SanitizerKind::SafeStack),
+      std::make_pair(SanitizerKind::Type,
+                     SanitizerKind::Address | SanitizerKind::KernelAddress |
+                         SanitizerKind::Memory | SanitizerKind::Leak |
+                         SanitizerKind::Thread)};
   // Enable toolchain specific default sanitizers if not explicitly disabled.
   SanitizerMask Default = TC.getDefaultSanitizers() & ~AllRemove;
 

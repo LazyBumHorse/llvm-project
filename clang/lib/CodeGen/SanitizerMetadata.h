@@ -41,6 +41,7 @@ public:
   void reportGlobalToASan(llvm::GlobalVariable *GV, SourceLocation Loc,
                           StringRef Name, QualType Ty, bool IsDynInit = false,
                           bool IsBlacklisted = false);
+  void reportGlobalToTySan(llvm::GlobalVariable *GV, const VarDecl &D);
   void disableSanitizerForGlobal(llvm::GlobalVariable *GV);
   void disableSanitizerForInstruction(llvm::Instruction *I);
 private:

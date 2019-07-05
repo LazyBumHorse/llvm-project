@@ -75,6 +75,31 @@ void SanitizerMetadata::reportGlobalToASan(llvm::GlobalVariable *GV,
                      IsBlacklisted);
 }
 
+void SanitizerMetadata::reportGlobalToTySan(llvm::GlobalVariable *GV,
+                                            const VarDecl &D) {
+  if (!CGM.getLangOpts().Sanitize.has(SanitizerKind::Type))
+    return;
+
+  for (auto Attr : D.specific_attrs<NoSanitizeAttr>())
+    if (Attr->getMask() & SanitizerKind::Type)
+      return;
+
+  QualType QTy = D.getType();
+  llvm::MDNode *TBAAInfo = CGM.getTBAATypeInfo(QTy);
+  if (!TBAAInfo || TBAAInfo == CGM.getTBAATypeInfo(CGM.getContext().CharTy))
+    return;
+
+  llvm::Metadata *GlobalMetadata[] = {
+    llvm::ConstantAsMetadata::get(GV), TBAAInfo
+  };
+
+  llvm::MDNode *ThisGlobal =
+    llvm::MDNode::get(CGM.getLLVMContext(), GlobalMetadata);
+  llvm::NamedMDNode *TysanGlobals =
+      CGM.getModule().getOrInsertNamedMetadata("llvm.tysan.globals");
+  TysanGlobals->addOperand(ThisGlobal);
+}
+
 void SanitizerMetadata::disableSanitizerForGlobal(llvm::GlobalVariable *GV) {
   // For now, just make sure the global is not modified by the ASan
   // instrumentation.

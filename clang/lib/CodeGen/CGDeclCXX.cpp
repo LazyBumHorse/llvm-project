@@ -375,6 +375,10 @@ llvm::Function *CodeGenModule::CreateGlobalInitOrDestructFunction(
       !isInSanitizerBlacklist(SanitizerKind::ShadowCallStack, Fn, Loc))
     Fn->addFnAttr(llvm::Attribute::ShadowCallStack);
 
+  if (getLangOpts().Sanitize.has(SanitizerKind::Type) &&
+      !isInSanitizerBlacklist(SanitizerKind::Type, Fn, Loc))
+    Fn->addFnAttr(llvm::Attribute::SanitizeType);
+
   auto RASignKind = getCodeGenOpts().getSignReturnAddress();
   if (RASignKind != CodeGenOptions::SignReturnAddressScope::None) {
     Fn->addFnAttr("sign-return-address",
