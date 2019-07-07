@@ -1516,6 +1516,7 @@ static bool isFuncOnlyAttr(Attribute::AttrKind Kind) {
   case Attribute::SanitizeHWAddress:
   case Attribute::SanitizeThread:
   case Attribute::SanitizeMemory:
+  case Attribute::SanitizeType:
   case Attribute::MinSize:
   case Attribute::NoDuplicate:
   case Attribute::Builtin:

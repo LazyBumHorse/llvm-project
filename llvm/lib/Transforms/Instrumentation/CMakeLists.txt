@@ -15,6 +15,7 @@ add_llvm_library(LLVMInstrumentation
   SanitizerCoverage.cpp
   ThreadSanitizer.cpp
   HWAddressSanitizer.cpp
+  TypeSanitizer.cpp
 
   ADDITIONAL_HEADER_DIRS
   ${LLVM_MAIN_INCLUDE_DIR}/llvm/Transforms

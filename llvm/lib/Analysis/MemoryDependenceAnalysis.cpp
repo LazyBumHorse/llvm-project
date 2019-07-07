@@ -249,6 +249,12 @@ unsigned MemoryDependenceResults::getLoadLoadClobberFullWidthSize(
   if (LI->getParent()->getParent()->hasFnAttribute(Attribute::SanitizeThread))
     return 0;
 
+  // Load widening is also hostile to the TypeSanitizer: it may cause false
+  // positives (i.e. accessing data that seems to be of the wrong type).
+  if (LI->getParent()->getParent()->hasFnAttribute(Attribute::SanitizeType) &&
+      LI->getMetadata(LLVMContext::MD_tbaa) != nullptr)
+    return 0;
+
   const DataLayout &DL = LI->getModule()->getDataLayout();
 
   // Get the base of this load.
